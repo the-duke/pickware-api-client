@@ -1,6 +1,6 @@
 {
   "name": "pickware-api-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node client for pickware mobile api",
   "main": "dist/index.js",
   "author": "Thomas Herzog",

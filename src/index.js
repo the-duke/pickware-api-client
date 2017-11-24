@@ -14,7 +14,7 @@ const ERROR = {
 
 const handleError = err => new Promise((resolve, reject) => reject(err))
 
-class Shopware {
+class Pickware {
   constructor(options) {
     if (!options) {
       console.error('No host, user or api key found.')
@@ -23,14 +23,18 @@ class Shopware {
     this.host = options.host
     this.user = options.user
     this.apiKey = options.apiKey
+    this.deviceUuid = options.deviceUuid
+    this.apiVersion = options.apiVersion || '2017-06-08'
 
     this.request = request.defaults({
       baseUrl: this.host + '/api/',
       timeout: 30000,
       json: true,
       headers: {
-        'User-Agent': 'Shopware API Client',
-        'Content-Type': 'application/json; charset=utf-8'
+        'User-Agent': 'Stocking/2.10.2 (iPod touch; iOS 11.0.3; Scale/2.00)',
+        'Content-Type': 'application/json; charset=utf-8',
+        'pickware-device-uuid': this.deviceUuid,
+        'pickware-api-version': this.apiVersion
       },
       auth: {
         user: this.user,
@@ -88,61 +92,61 @@ class Shopware {
     }, 'data')
   }
 
-  getArticles(params) {
+  getWarehouses(params) {
     return this.handleRequest({
-      url: 'articles/',
+      url: 'warehouses/',
       method: 'GET',
       qs: params
     }, 'data')
   }
 
-  getArticle(id) {
+  getWarehouse(id) {
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `articles/${id}`,
+      url: `warehouses/${id}`,
       method: 'GET'
     }, 'data')
   }
 
-  deleteArticle(id) {
+  deleteWarehouse(id) {
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `articles/${id}`,
+      url: `warehouses/${id}`,
       method: 'DELETE'
     })
   }
 
-  deleteArticles(ids) {
+  deleteWarehouses(ids) {
     if (!ids) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: 'articles/',
+      url: 'warehouses/',
       method: 'DELETE',
       ids
     })
   }
 
-  createArticle(body) {
+  createWarehouse(body) {
     if (!body) {
       return handleError(ERROR.MISSING_BODY)
     }
 
     return this.handleRequest({
-      url: 'articles/',
+      url: 'warehouses/',
       method: 'POST',
       body
     })
   }
 
-  updateArticle(id, body) {
+  updateWarehouses(id, body) {
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
@@ -152,102 +156,75 @@ class Shopware {
     }
 
     return this.handleRequest({
-      url: `articles/${id}`,
+      url: `warehouses/${id}`,
       method: 'PUT',
       body
     })
   }
 
-  updateArticles(body) {
+  updateWarehouses(body) {
     if (!body) {
       return handleError(ERROR.MISSING_BODY)
     }
 
     return this.handleRequest({
-      url: 'articles/',
+      url: 'warehouses/',
       method: 'PUT',
       body
     })
   }
 
-  getCategories(params) {
+  getUsers(params) {
     return this.handleRequest({
-      url: 'categories/',
+      url: 'pickware/users/',
       method: 'GET',
       qs: params
     }, 'data')
   }
 
-  getCategory(id) {
+  getUser(id) {
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `categories/${id}`,
+      url: `pickware/users/${id}`,
       method: 'GET'
     }, 'data')
   }
 
-  createCategory(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'categories/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updateCategory(id, body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    if (!id) {
+  getWarehouseBinLocations(warehouseId, params) {
+    if (!warehouseId) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `categories/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteCategory(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `categories/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getVariants(params) {
-    return this.handleRequest({
-      url: 'variants/',
+      url: `warehouses/${warehouseId}/binLocations`,
       method: 'GET',
       qs: params
     }, 'data')
   }
 
-  getVariant(id) {
+  getWarehouseBinLocation(warehouseId, id) {
+    if (!warehouseId) {
+      return handleError(ERROR.MISSING_ID)
+    }
+
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `variants/${id}`,
+      url: `warehouses/${warehouseId}/binLocations/${id}`,
       method: 'GET'
     }, 'data')
   }
 
-  updateVariant(id, body) {
+  updateWarehouseBinLocation(warehouseId, id, body) {
+    if (!warehouseId) {
+      return handleError(ERROR.MISSING_ID)
+    }
+
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
@@ -257,14 +234,14 @@ class Shopware {
     }
 
     return this.handleRequest({
-      url: `variants/${id}`,
+      url: `warehouses/${warehouseId}/binLocations/${id}`,
       method: 'PUT',
       body
     })
   }
 
-  createVariant(id, body) {
-    if (!id) {
+  createWarehouseBinLocation(warehouseId, body) {
+    if (!warehouseId) {
       return handleError(ERROR.MISSING_ID)
     }
 
@@ -273,109 +250,61 @@ class Shopware {
     }
 
     return this.handleRequest({
-      url: `variants/${id}`,
+      url: `warehouses/${warehouseId}/binLocations`,
       method: 'POST',
       body
     })
   }
 
-  deleteVariant(id) {
+  deleteWarehouseBinLocation(warehouseId, id) {
+    if (!warehouseId) {
+      return handleError(ERROR.MISSING_ID)
+    }
+
     if (!id) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `variants/${id}`,
+      url: `warehouses/${warehouseId}/binLocations/${id}`,
       method: 'DELETE'
     })
   }
 
-  deleteVariants(ids) {
+  deleteWarehouseBinLocations(warehouseId, ids) {
+    if (!warehouseId) {
+      return handleError(ERROR.MISSING_ID)
+    }
+
     if (!ids) {
       return handleError(ERROR.MISSING_ID)
     }
 
     return this.handleRequest({
-      url: `variants/`,
+      url: `warehouses/${warehouseId}/binLocations/`,
       method: 'DELETE',
       ids
     })
   }
 
-  generateArticleImages(id) {
-    if (!id) {
+  relocateVariantStock(variantId, body) {
+    if (!variantId) {
       return handleError(ERROR.MISSING_ID)
     }
 
-    return this.handleRequest({
-      url: `generateArticleImages/${id}`,
-      method: 'PUT'
-    })
-  }
-
-  listMedia(params) {
-    return this.handleRequest({
-      url: 'media/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getMedia(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `media/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createMedia(body) {
     if (!body) {
       return handleError(ERROR.MISSING_BODY)
     }
 
     return this.handleRequest({
-      url: 'media/',
+      url: `variants/${variantId}/relocations/`,
       method: 'POST',
       body
     })
   }
 
-  deleteMedia(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `media/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getOrders(params) {
-    return this.handleRequest({
-      url: 'orders/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getOrder(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `orders/${id}`,
-      method: 'GET'
-    })
-  }
-
-  updateOrder(id, body) {
-    if (!id) {
+  changeVariantStock(variantId, body) {
+    if (!variantId) {
       return handleError(ERROR.MISSING_ID)
     }
 
@@ -384,34 +313,14 @@ class Shopware {
     }
 
     return this.handleRequest({
-      url: `orders/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  getAddresses(params) {
-    return this.handleRequest({
-      url: 'addresses/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  createAddress(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'addresses/',
+      url: `variants/${variantId}/stock`,
       method: 'POST',
       body
     })
   }
 
-  updateAddress(id, body) {
-    if (!id) {
+  overwriteVariantStock(variantId, body) {
+    if (!variantId) {
       return handleError(ERROR.MISSING_ID)
     }
 
@@ -420,467 +329,9 @@ class Shopware {
     }
 
     return this.handleRequest({
-      url: `addresses/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteAddress(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `addresses/${id}`,
-      method: 'DELETE'
-    }, 'data')
-  }
-
-  getCustomers(params) {
-    return this.handleRequest({
-      url: 'customers/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getCustomer(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `customers/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createCustomer(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'customers/',
+      url: `variants/${variantId}/stocktakes`,
       method: 'POST',
       body
-    })
-  }
-
-  updateCustomer(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `customers/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteCustomer(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `customers/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getCaches(params) {
-    return this.handleRequest({
-      url: 'caches/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getCache(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `caches/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  deleteCache(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `caches/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  deleteCaches() {
-    return this.handleRequest({
-      url: 'caches/',
-      method: 'DELETE'
-    })
-  }
-
-  getCountries(params) {
-    return this.handleRequest({
-      url: 'countries/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getCountry(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `countries/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createCountry(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'countries/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updateCountry(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `countries/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteCountry(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `countries/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getCustomerGroups(params) {
-    return this.handleRequest({
-      url: 'customerGroups/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getCustomerGroup(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `customerGroups/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createCustomerGroup(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'customerGroups/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updateCustomerGroup(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `customerGroups/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteCustomerGroup(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `customerGroups/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getManufacturers(params) {
-    return this.handleRequest({
-      url: 'manufacturers/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getManufacturer(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `manufacturers/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createManufacturer(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'manufacturers/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updateManufacturer(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `manufacturers/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteManufacturer(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `manufacturers/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getPropertyGroups(params) {
-    return this.handleRequest({
-      url: 'propertyGroups/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getPropertyGroup(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `propertyGroups/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createPropertyGroup(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'propertyGroups/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updatePropertyGroup(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `propertyGroups/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deletePropertyGroup(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `propertyGroups/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getShops(params) {
-    return this.handleRequest({
-      url: 'shops/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getShop(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `shops/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createShop(body) {
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: 'shops/',
-      method: 'POST',
-      body
-    })
-  }
-
-  updateShop(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `shops/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteShop(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `shops/${id}`,
-      method: 'DELETE'
-    })
-  }
-
-  getTranslations(params) {
-    return this.handleRequest({
-      url: 'translations/',
-      method: 'GET',
-      qs: params
-    }, 'data')
-  }
-
-  getTranslation(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `translations/${id}`,
-      method: 'GET'
-    }, 'data')
-  }
-
-  createTranslation(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `translations/${id}`,
-      method: 'POST',
-      body
-    })
-  }
-
-  updateTranslation(id, body) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    if (!body) {
-      return handleError(ERROR.MISSING_BODY)
-    }
-
-    return this.handleRequest({
-      url: `translations/${id}`,
-      method: 'PUT',
-      body
-    })
-  }
-
-  deleteTranslation(id) {
-    if (!id) {
-      return handleError(ERROR.MISSING_ID)
-    }
-
-    return this.handleRequest({
-      url: `translations/${id}`,
-      method: 'DELETE'
     })
   }
 
@@ -968,4 +419,4 @@ class Shopware {
 
 }
 
-module.exports = Shopware
+module.exports = Pickware
